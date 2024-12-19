@@ -1,0 +1,11 @@
+{
+"rules": [
+{
+"primary-output": "CMakeFiles/openmp.dir/exercise6.cpp.o",
+"requires": [
+]
+}
+],
+"version": 0,
+"revision": 0
+}

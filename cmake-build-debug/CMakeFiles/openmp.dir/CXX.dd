@@ -1,0 +1,5 @@
+ninja_dyndep_version = 1.0
+build CMakeFiles/openmp.dir/matrix.cpp.o: dyndep
+
+build CMakeFiles/openmp.dir/main.cpp.o: dyndep
+

@@ -1,0 +1,18 @@
+{
+	"bmi-installation" : null,
+	"compiler-frontend-variant" : "GNU",
+	"compiler-id" : "GNU",
+	"compiler-simulate-id" : "",
+	"config" : "Debug",
+	"cxx-modules" : {},
+	"dir-cur-bld" : "/home/ahmed/CLionProjects/openmp/cmake-build-debug",
+	"dir-cur-src" : "/home/ahmed/CLionProjects/openmp",
+	"dir-top-bld" : "/home/ahmed/CLionProjects/openmp/cmake-build-debug",
+	"dir-top-src" : "/home/ahmed/CLionProjects/openmp",
+	"exports" : [],
+	"forward-modules-from-target-dirs" : [],
+	"include-dirs" : [],
+	"language" : "CXX",
+	"linked-target-dirs" : [],
+	"module-dir" : "/home/ahmed/CLionProjects/openmp/cmake-build-debug/CMakeFiles/openmp.dir"
+}

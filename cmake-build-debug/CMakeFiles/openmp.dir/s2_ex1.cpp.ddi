@@ -1,0 +1,11 @@
+{
+"rules": [
+{
+"primary-output": "CMakeFiles/openmp.dir/s2_ex1.cpp.o",
+"requires": [
+]
+}
+],
+"version": 0,
+"revision": 0
+}

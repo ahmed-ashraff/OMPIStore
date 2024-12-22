@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
     if(rank == 0) {
-        coordinator(size);
+        coordinator(3);
     } else if (rank == 1 || rank == 2) {
         shard(rank);
     } else {

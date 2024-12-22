@@ -1,3 +1,3 @@
-/home/ahmed/CLionProjects/openmp/cmake-build-debug/CMakeFiles/openmp_mpi.dir
-/home/ahmed/CLionProjects/openmp/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/ahmed/CLionProjects/openmp/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/ahmed/Distributed-Key-Value-Store/cmake-build-debug/CMakeFiles/openmp_mpi.dir
+/home/ahmed/Distributed-Key-Value-Store/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/ahmed/Distributed-Key-Value-Store/cmake-build-debug/CMakeFiles/rebuild_cache.dir

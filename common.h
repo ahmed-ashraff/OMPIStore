@@ -20,21 +20,38 @@ enum MessageType {
     SHARD_RESPONSE
 };
 
+enum TransactionState {
+    PREPARE = 1,
+    COMMIT = 2,
+    ROLLBACK = 3
+};
+
 namespace mpi_utils {
     inline void send_string(const string& str, const int dest, const int tag, MPI_Comm comm) {
         const int str_size = static_cast<int>(str.size());
-        MPI_Send(&str_size, 1, MPI_INT, dest, tag, comm);
-        MPI_Send(str.c_str(), str_size, MPI_CHAR, dest, tag + 1, comm);
+        // Use well-separated tags to avoid conflicts
+        const int size_tag = tag * 2;
+        const int data_tag = tag * 2 + 1;
+
+        MPI_Send(&str_size, 1, MPI_INT, dest, size_tag, comm);
+        if (str_size > 0) {
+            MPI_Send(str.c_str(), str_size, MPI_CHAR, dest, data_tag, comm);
+        }
     }
 
     inline string receive_string(const int source, const int tag, MPI_Comm comm) {
         int str_size;
-        MPI_Recv(&str_size, 1, MPI_INT, source, tag, comm, MPI_STATUS_IGNORE);
+        const int size_tag = tag * 2;
+        const int data_tag = tag * 2 + 1;
 
-        vector<char> buffer(str_size);
-        MPI_Recv(buffer.data(), str_size, MPI_CHAR, source, tag + 1, comm, MPI_STATUS_IGNORE);
+        MPI_Recv(&str_size, 1, MPI_INT, source, size_tag, comm, MPI_STATUS_IGNORE);
 
-        return string(buffer.begin(), buffer.end());
+        if (str_size > 0) {
+            vector<char> buffer(str_size);
+            MPI_Recv(buffer.data(), str_size, MPI_CHAR, source, data_tag, comm, MPI_STATUS_IGNORE);
+            return string(buffer.begin(), buffer.end());
+        }
+        return "";
     }
 
     inline void send_int(const int& value, const int dest, const int tag, MPI_Comm comm) {
@@ -56,7 +73,7 @@ namespace mpi_utils {
     }
 
     inline bool receive_bool(const int source, const int tag, MPI_Comm comm) {
-        bool value;
+        bool value = false;
         MPI_Recv(&value, 1, MPI_CXX_BOOL, source, tag, comm, MPI_STATUS_IGNORE);
         return value;
     }
@@ -65,6 +82,12 @@ namespace mpi_utils {
         int value;
         MPI_Recv(&value, 1, MPI_INT, source, tag, comm, MPI_STATUS_IGNORE);
         return static_cast<RequestType>(value);
+    }
+
+    inline TransactionState receive_phase_type(const int source, const int tag, MPI_Comm comm) {
+        int value;
+        MPI_Recv(&value, 1, MPI_INT, source, tag, comm, MPI_STATUS_IGNORE);
+        return static_cast<TransactionState>(value);
     }
 }
 
@@ -117,11 +140,13 @@ struct ShardRequest {
     RequestType type;
     int key{};
     string value;
+    TransactionState state;
 
     static void send_shard_request(const ShardRequest& request, const int dest, const int tag, MPI_Comm comm) {
         mpi_utils::send_enum(request.type, dest, tag, comm);
         mpi_utils::send_int(request.key, dest, tag + 1, comm);
         mpi_utils::send_string(request.value, dest, tag + 2, comm);
+        mpi_utils::send_enum(request.state, dest, tag + 3, comm);
     }
 
     static ShardRequest receive_shard_request(const int source, const int tag, MPI_Comm comm) {
@@ -129,8 +154,46 @@ struct ShardRequest {
         request.type = mpi_utils::receive_request_type(source, tag, comm);
         request.key = mpi_utils::receive_int(source, tag + 1, comm);
         request.value = mpi_utils::receive_string(source, tag + 2, comm);
+        request.state = mpi_utils::receive_phase_type(source, tag + 3, comm);
         return request;
     }
 };
+
+inline RequestType selectType(const int &x) {
+    RequestType ret = {};
+    switch (x) {
+        case 1:
+            ret = CREATE;
+        break;
+        case 2:
+            ret = READ;
+        break;
+        case 3:
+            ret = UPDATE;
+        break;
+        case 4:
+            ret = DELETE;
+        break;
+        default: ;
+    }
+    return ret;
+}
+
+inline TransactionState selectPhase(const int &x) {
+    TransactionState ret = {};
+    switch (x) {
+        case 1:
+            ret = PREPARE;
+        break;
+        case 2:
+            ret = COMMIT;
+        break;
+        case 3:
+            ret = ROLLBACK;
+        break;
+        default: ;
+    }
+    return ret;
+}
 
 #endif //COMMON_H

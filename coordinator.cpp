@@ -4,7 +4,26 @@
 
 using namespace std;
 
-void coordinator(int world_size) {
+// Global lock table
+map<int, bool> key_locks;
+mutex lock_mutex;
+
+bool is_key_locked(int key) {
+    lock_guard guard(lock_mutex);
+    return key_locks[key];
+}
+
+void lock_key(int key) {
+    lock_guard guard(lock_mutex);
+    key_locks[key] = true;
+}
+
+void unlock_key(int key) {
+    lock_guard guard(lock_mutex);
+    key_locks[key] = false;
+}
+
+void coordinator(const int &shardNodes) {
     cout << "Coordinator started...\n";
 
     while (true) {
@@ -13,7 +32,8 @@ void coordinator(int world_size) {
 
         if (type == READ) {
             vector<ShardResponse> responses;
-            for (int shard_id = 1; shard_id < world_size; ++shard_id) {
+
+            for (int shard_id = 1; shard_id <= shardNodes; ++shard_id) {
                 ShardRequest read_request{READ, key, ""};
                 ShardRequest::send_shard_request(read_request, shard_id, SHARD_REQUEST, MPI_COMM_WORLD);
 
@@ -24,11 +44,11 @@ void coordinator(int world_size) {
             // Determine the latest version of the value
             string latest_value;
             bool found = false;
-            for (const auto &[success, value] : responses) {
-                if (success) {
+
+            for (auto &[success, value] : responses) {
+                if (!found && success) {
                     latest_value = value;
                     found = true;
-                    break;
                 }
             }
 
@@ -40,35 +60,50 @@ void coordinator(int world_size) {
                 ClientRequest::send_client_response({false, "Key not found"}, client_rank, CLIENT_RESPONSE, MPI_COMM_WORLD);
             }
         } else {
+            if (is_key_locked(key)) {
+                cout << "Coordinator: Key " << key << " is already locked, rejecting request\n";
+                ClientRequest::send_client_response(
+                    {false, "Key is locked by another transaction"},
+                    client_rank,
+                    CLIENT_RESPONSE,
+                    MPI_COMM_WORLD
+                );
+                continue;
+            }
+
+            lock_key(key);
+
             // WRITE operations require two-phase commit
             bool prepare_success = true;
 
             // Send PREPARE requests to all shards
-            for (int shard_id = 1; shard_id < world_size; ++shard_id) {
+            for (int shard_id = 1; shard_id <= shardNodes; ++shard_id) {
                 ShardRequest shard_request{type, key, value, PREPARE};
                 ShardRequest::send_shard_request(shard_request, shard_id, SHARD_REQUEST, MPI_COMM_WORLD);
             }
 
             // Collect PREPARE responses from all shards
-            for (int shard_id = 1; shard_id < world_size; ++shard_id) {
-                const auto [success, _] = ShardResponse::receive_shard_response(shard_id, SHARD_RESPONSE, MPI_COMM_WORLD);
-                cout << "Coordinator received from shard " << shard_id << ": " << success << '\n';
-                if (!success) {
-                    prepare_success = false;
-                    break;
-                }
+            for (int shard_id = 1; shard_id <= shardNodes; ++shard_id) {
+                const auto [success, str] = ShardResponse::receive_shard_response(shard_id, SHARD_RESPONSE, MPI_COMM_WORLD);
+                cout << "Coordinator received from shard " << shard_id << ": " << str << '\n';
+                prepare_success = prepare_success && success;
             }
+
+            cout << "Coordinator: Prepare phase success = " << prepare_success << "\n";
 
             // Decide on COMMIT or ROLLBACK based on PREPARE responses
             const TransactionState next_phase = prepare_success ? COMMIT : ROLLBACK;
 
             // Send COMMIT or ROLLBACK to all shards
-            for (int shard_id = 1; shard_id < world_size; ++shard_id) {
+            for (int shard_id = 1; shard_id <= shardNodes; ++shard_id) {
                 ShardRequest shard_request{type, key, value, next_phase};
                 ShardRequest::send_shard_request(shard_request, shard_id, SHARD_REQUEST, MPI_COMM_WORLD);
+                // Getting the Acknowledgment
+                ShardResponse::receive_shard_response(shard_id, SHARD_RESPONSE, MPI_COMM_WORLD);
             }
 
-            // Send response to client
+            unlock_key(key);
+
             ClientRequest::send_client_response(
                 {prepare_success, prepare_success ? value : "Operation failed"},
                 client_rank,

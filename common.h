@@ -110,7 +110,7 @@ struct ShardResponse {
 
 struct ClientRequest {
     int client_rank{};
-    RequestType type;
+    RequestType type{};
     int key{};
     string value;
 
@@ -137,10 +137,10 @@ struct ClientRequest {
 };
 
 struct ShardRequest {
-    RequestType type;
+    RequestType type{};
     int key{};
     string value;
-    TransactionState state;
+    TransactionState state{};
 
     static void send_shard_request(const ShardRequest& request, const int dest, const int tag, MPI_Comm comm) {
         mpi_utils::send_enum(request.type, dest, tag, comm);

@@ -6,6 +6,8 @@
 
 using namespace std;
 
+constexpr int SHARD_NODES = 2;
+
 
 int main(int argc, char **argv) {
     int rank, size;
@@ -16,7 +18,7 @@ int main(int argc, char **argv) {
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
     if(rank == 0) {
-        coordinator(3);
+        coordinator(SHARD_NODES);
     } else if (rank == 1 || rank == 2) {
         shard(rank);
     } else {

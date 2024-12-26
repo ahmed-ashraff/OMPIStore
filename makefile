@@ -5,11 +5,14 @@ all: build run
 
 build: main
 
-main: main.o coordinator.o node.o client.o
-	$(CC) $(CFLAGS) -o main main.o coordinator.o node.o client.o
+main: main.o coordinator.o node.o client.o logger.o
+	$(CC) $(CFLAGS) -o main main.o coordinator.o node.o client.o logger.o
 
 main.o: main.cpp
 	$(CC) $(CFLAGS) -c main.cpp
+
+logger.o: logger.cpp
+	$(CC) $(CFLAGS) -c logger.cpp
 
 coordinator.o: coordinator.cpp
 	$(CC) $(CFLAGS) -c coordinator.cpp

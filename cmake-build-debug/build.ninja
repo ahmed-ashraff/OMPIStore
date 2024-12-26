@@ -109,7 +109,22 @@ build CMakeFiles/openmp_mpi.dir/client.cpp.o: CXX_COMPILER__openmp_mpi_scanned_D
   OBJECT_FILE_DIR = CMakeFiles/openmp_mpi.dir
   dyndep = CMakeFiles/openmp_mpi.dir/CXX.dd
 
-build CMakeFiles/openmp_mpi.dir/CXX.dd | /home/ahmed/Distributed-Key-Value-Store/cmake-build-debug/CMakeFiles/openmp_mpi.dir/CXXModules.json CMakeFiles/openmp_mpi.dir/main.cpp.o.modmap CMakeFiles/openmp_mpi.dir/node.cpp.o.modmap CMakeFiles/openmp_mpi.dir/coordinator.cpp.o.modmap CMakeFiles/openmp_mpi.dir/client.cpp.o.modmap: CXX_DYNDEP__openmp_mpi_Debug CMakeFiles/openmp_mpi.dir/main.cpp.o.ddi CMakeFiles/openmp_mpi.dir/node.cpp.o.ddi CMakeFiles/openmp_mpi.dir/coordinator.cpp.o.ddi CMakeFiles/openmp_mpi.dir/client.cpp.o.ddi
+build CMakeFiles/openmp_mpi.dir/logger.cpp.o.ddi: CXX_SCAN__openmp_mpi_Debug /home/ahmed/Distributed-Key-Value-Store/logger.cpp || cmake_object_order_depends_target_openmp_mpi
+  DEP_FILE = CMakeFiles/openmp_mpi.dir/logger.cpp.o.ddi.d
+  DYNDEP_INTERMEDIATE_FILE = CMakeFiles/openmp_mpi.dir/logger.cpp.o.ddi
+  FLAGS = -g -std=gnu++23 -fdiagnostics-color=always
+  OBJ_FILE = CMakeFiles/openmp_mpi.dir/logger.cpp.o
+  PREPROCESSED_OUTPUT_FILE = CMakeFiles/openmp_mpi.dir/logger.cpp.o.ddi.i
+
+build CMakeFiles/openmp_mpi.dir/logger.cpp.o: CXX_COMPILER__openmp_mpi_scanned_Debug /home/ahmed/Distributed-Key-Value-Store/logger.cpp || cmake_object_order_depends_target_openmp_mpi CMakeFiles/openmp_mpi.dir/CXX.dd CMakeFiles/openmp_mpi.dir/logger.cpp.o.modmap
+  DEP_FILE = CMakeFiles/openmp_mpi.dir/logger.cpp.o.d
+  DYNDEP_MODULE_MAP_FILE = CMakeFiles/openmp_mpi.dir/logger.cpp.o.modmap
+  FLAGS = -g -std=gnu++23 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles/openmp_mpi.dir
+  OBJECT_FILE_DIR = CMakeFiles/openmp_mpi.dir
+  dyndep = CMakeFiles/openmp_mpi.dir/CXX.dd
+
+build CMakeFiles/openmp_mpi.dir/CXX.dd | /home/ahmed/Distributed-Key-Value-Store/cmake-build-debug/CMakeFiles/openmp_mpi.dir/CXXModules.json CMakeFiles/openmp_mpi.dir/main.cpp.o.modmap CMakeFiles/openmp_mpi.dir/node.cpp.o.modmap CMakeFiles/openmp_mpi.dir/coordinator.cpp.o.modmap CMakeFiles/openmp_mpi.dir/client.cpp.o.modmap CMakeFiles/openmp_mpi.dir/logger.cpp.o.modmap: CXX_DYNDEP__openmp_mpi_Debug CMakeFiles/openmp_mpi.dir/main.cpp.o.ddi CMakeFiles/openmp_mpi.dir/node.cpp.o.ddi CMakeFiles/openmp_mpi.dir/coordinator.cpp.o.ddi CMakeFiles/openmp_mpi.dir/client.cpp.o.ddi CMakeFiles/openmp_mpi.dir/logger.cpp.o.ddi
 
 
 # =============================================================================
@@ -119,7 +134,7 @@ build CMakeFiles/openmp_mpi.dir/CXX.dd | /home/ahmed/Distributed-Key-Value-Store
 #############################################
 # Link the executable openmp_mpi
 
-build openmp_mpi: CXX_EXECUTABLE_LINKER__openmp_mpi_Debug CMakeFiles/openmp_mpi.dir/main.cpp.o CMakeFiles/openmp_mpi.dir/node.cpp.o CMakeFiles/openmp_mpi.dir/coordinator.cpp.o CMakeFiles/openmp_mpi.dir/client.cpp.o | /usr/lib/libmpi.so
+build openmp_mpi: CXX_EXECUTABLE_LINKER__openmp_mpi_Debug CMakeFiles/openmp_mpi.dir/main.cpp.o CMakeFiles/openmp_mpi.dir/node.cpp.o CMakeFiles/openmp_mpi.dir/coordinator.cpp.o CMakeFiles/openmp_mpi.dir/client.cpp.o CMakeFiles/openmp_mpi.dir/logger.cpp.o | /usr/lib/libmpi.so
   FLAGS = -g
   LINK_FLAGS = -Wl,-rpath -Wl,/usr/lib -Wl,--enable-new-dtags
   LINK_LIBRARIES = /usr/lib/libmpi.so

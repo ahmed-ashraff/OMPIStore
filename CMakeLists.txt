@@ -16,7 +16,9 @@ add_executable(openmp_mpi main.cpp
         client.cpp
         shard.h
         coordinator.h
-        client.h)
+        client.h
+        logger.h
+        logger.cpp)
 
 # Link OpenMP
 if(OpenMP_CXX_FOUND)

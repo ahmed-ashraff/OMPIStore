@@ -1,5 +1,6 @@
 #include "common.h"
 #include "coordinator.h"
+#include "logger.h"
 #include <iostream>
 
 using namespace std;
@@ -24,7 +25,11 @@ void unlock_key(int key) {
 }
 
 void coordinator(const int &shardNodes) {
-    cout << "Coordinator started...\n";
+    auto& logger = Logger::getInstance(0);
+
+    // logger.setLogFile("coordinator.log");
+
+    logger.info("Coordinator started...\n");
 
     while (true) {
         auto [client_rank, Type, key, value] = ClientRequest::receive_client_request(MPI_ANY_SOURCE, CLIENT_REQUEST, MPI_COMM_WORLD);
@@ -59,7 +64,7 @@ void coordinator(const int &shardNodes) {
             }
         } else {
             if (is_key_locked(key)) {
-                cout << "Coordinator: Key " << key << " is already locked, rejecting request\n";
+                logger.warning("Key " + to_string(key) + " is already locked, rejecting request");
                 ClientRequest::send_client_response(
                     {false, "Key is locked by another transaction"},
                     client_rank,
@@ -70,6 +75,7 @@ void coordinator(const int &shardNodes) {
             }
 
             lock_key(key);
+            logger.debug("Locked key: " + to_string(key));
 
             // WRITE operations require two-phase commit
             bool prepare_success = true;
@@ -83,14 +89,15 @@ void coordinator(const int &shardNodes) {
             // Collect PREPARE responses from all shards
             for (int shard_id = 1; shard_id <= shardNodes; ++shard_id) {
                 const auto [success, str] = ShardResponse::receive_shard_response(shard_id, NODE_RESPONSE, MPI_COMM_WORLD);
-                cout << "Coordinator received from shard " << shard_id << ": " << str << '\n';
+                logger.info("Received from shard " + to_string(shard_id) + ": " + str);
                 prepare_success = prepare_success && success;
             }
 
-            cout << "Coordinator: Prepare phase success = " << prepare_success << "\n";
+            logger.info("Prepare phase success = " + string(prepare_success ? "true" : "false"));
 
             // Decide on COMMIT or ROLLBACK based on PREPARE responses
             const TwoPC next_phase = prepare_success ? COMMIT : ROLLBACK;
+            logger.info("Starting " + string(next_phase == COMMIT ? "COMMIT" : "ROLLBACK") + " phase");
 
             // Send COMMIT or ROLLBACK to all shards
             for (int shard_id = 1; shard_id <= shardNodes; ++shard_id) {
@@ -101,6 +108,7 @@ void coordinator(const int &shardNodes) {
             }
 
             unlock_key(key);
+            logger.info("Starting " + string(next_phase == COMMIT ? "COMMIT" : "ROLLBACK") + " phase");
 
             ClientRequest::send_client_response(
                 {prepare_success, prepare_success ? value : "Operation failed"},

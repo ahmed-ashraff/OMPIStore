@@ -1,14 +1,14 @@
 # ninja log v6
+96	1151	1734549616228396205	CMakeFiles/openmp_mpi.dir/coordinator.cpp.o	55eacb7a0c0e1190
+3	86	1734549616135073752	CMakeFiles/openmp_mpi.dir/client.cpp.o.ddi	d2ddd7998f4dce05
+3	88	1734549616135073752	CMakeFiles/openmp_mpi.dir/coordinator.cpp.o.ddi	8fbc38ecb9d1f38c
+88	96	1734549616218397372	CMakeFiles/openmp_mpi.dir/CXX.dd	4f57b67b2231b738
+88	96	1734549616218397372	CMakeFiles/openmp_mpi.dir/main.cpp.o.modmap	4f57b67b2231b738
+96	1075	1734549616228396205	CMakeFiles/openmp_mpi.dir/client.cpp.o	c1a1e30cb6690d89
+88	96	1734549616218397372	CMakeFiles/openmp_mpi.dir/client.cpp.o.modmap	4f57b67b2231b738
+5040	5121	1733054680579868435	openmp	5d8224f81516db15
 96	2491	1734549616228396205	CMakeFiles/openmp_mpi.dir/main.cpp.o	b1571db9cd17c64d
+9	742	1735245152518017067	build.ninja	49e2a196e8f22f20
 88	96	1734549616218397372	CMakeFiles/openmp_mpi.dir/coordinator.cpp.o.modmap	4f57b67b2231b738
 2491	2557	1734549618624765792	openmp_mpi	3ad9db341e865c27
 2	306	1734549326513889839	CMakeFiles/openmp_mpi.dir/main.cpp.o.ddi	3b10995e2febd718
-9	742	1735237570579183979	build.ninja	49e2a196e8f22f20
-3	86	1734549616135073752	CMakeFiles/openmp_mpi.dir/client.cpp.o.ddi	d2ddd7998f4dce05
-96	1151	1734549616228396205	CMakeFiles/openmp_mpi.dir/coordinator.cpp.o	55eacb7a0c0e1190
-88	96	1734549616218397372	CMakeFiles/openmp_mpi.dir/CXX.dd	4f57b67b2231b738
-3	88	1734549616135073752	CMakeFiles/openmp_mpi.dir/coordinator.cpp.o.ddi	8fbc38ecb9d1f38c
-96	1075	1734549616228396205	CMakeFiles/openmp_mpi.dir/client.cpp.o	c1a1e30cb6690d89
-88	96	1734549616218397372	CMakeFiles/openmp_mpi.dir/main.cpp.o.modmap	4f57b67b2231b738
-5040	5121	1733054680579868435	openmp	5d8224f81516db15
-88	96	1734549616218397372	CMakeFiles/openmp_mpi.dir/client.cpp.o.modmap	4f57b67b2231b738

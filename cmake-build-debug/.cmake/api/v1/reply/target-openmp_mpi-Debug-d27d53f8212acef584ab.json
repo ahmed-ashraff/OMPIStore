@@ -171,7 +171,7 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "shard.cpp",
+			"path" : "node.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{

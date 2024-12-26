@@ -1,10 +1,12 @@
 CC = mpicxx
 CFLAGS = -Wall -std=c++20
 
-all: main
+all: build run
 
-main: main.o coordinator.o shard.o client.o
-	$(CC) $(CFLAGS) -o main main.o coordinator.o shard.o client.o
+build: main
+
+main: main.o coordinator.o node.o client.o
+	$(CC) $(CFLAGS) -o main main.o coordinator.o node.o client.o
 
 main.o: main.cpp
 	$(CC) $(CFLAGS) -c main.cpp
@@ -12,8 +14,8 @@ main.o: main.cpp
 coordinator.o: coordinator.cpp
 	$(CC) $(CFLAGS) -c coordinator.cpp
 
-shard.o: shard.cpp
-	$(CC) $(CFLAGS) -c shard.cpp
+node.o: node.cpp
+	$(CC) $(CFLAGS) -c node.cpp
 
 client.o: client.cpp
 	$(CC) $(CFLAGS) -c client.cpp

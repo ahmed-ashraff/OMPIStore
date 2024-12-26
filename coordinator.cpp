@@ -35,9 +35,9 @@ void coordinator(const int &shardNodes) {
 
             for (int shard_id = 1; shard_id <= shardNodes; ++shard_id) {
                 ShardRequest read_request{READ, key, ""};
-                ShardRequest::send_shard_request(read_request, shard_id, SHARD_REQUEST, MPI_COMM_WORLD);
+                ShardRequest::send_shard_request(read_request, shard_id, NODE_REQUEST, MPI_COMM_WORLD);
 
-                auto response = ShardResponse::receive_shard_response(shard_id, SHARD_RESPONSE, MPI_COMM_WORLD);
+                auto response = ShardResponse::receive_shard_response(shard_id, NODE_RESPONSE, MPI_COMM_WORLD);
                 responses.push_back(response);
             }
 
@@ -53,10 +53,8 @@ void coordinator(const int &shardNodes) {
             }
 
             if (found) {
-                cout << "Coordinator: Found value \"" << latest_value << "\" for key " << key << "\n";
                 ClientRequest::send_client_response({true, latest_value}, client_rank, CLIENT_RESPONSE, MPI_COMM_WORLD);
             } else {
-                cout << "Coordinator: Key " << key << " not found in any shard\n";
                 ClientRequest::send_client_response({false, "Key not found"}, client_rank, CLIENT_RESPONSE, MPI_COMM_WORLD);
             }
         } else {
@@ -79,12 +77,12 @@ void coordinator(const int &shardNodes) {
             // Send PREPARE requests to all shards
             for (int shard_id = 1; shard_id <= shardNodes; ++shard_id) {
                 ShardRequest shard_request{type, key, value, PREPARE};
-                ShardRequest::send_shard_request(shard_request, shard_id, SHARD_REQUEST, MPI_COMM_WORLD);
+                ShardRequest::send_shard_request(shard_request, shard_id, NODE_REQUEST, MPI_COMM_WORLD);
             }
 
             // Collect PREPARE responses from all shards
             for (int shard_id = 1; shard_id <= shardNodes; ++shard_id) {
-                const auto [success, str] = ShardResponse::receive_shard_response(shard_id, SHARD_RESPONSE, MPI_COMM_WORLD);
+                const auto [success, str] = ShardResponse::receive_shard_response(shard_id, NODE_RESPONSE, MPI_COMM_WORLD);
                 cout << "Coordinator received from shard " << shard_id << ": " << str << '\n';
                 prepare_success = prepare_success && success;
             }
@@ -92,14 +90,14 @@ void coordinator(const int &shardNodes) {
             cout << "Coordinator: Prepare phase success = " << prepare_success << "\n";
 
             // Decide on COMMIT or ROLLBACK based on PREPARE responses
-            const TransactionState next_phase = prepare_success ? COMMIT : ROLLBACK;
+            const TwoPC next_phase = prepare_success ? COMMIT : ROLLBACK;
 
             // Send COMMIT or ROLLBACK to all shards
             for (int shard_id = 1; shard_id <= shardNodes; ++shard_id) {
                 ShardRequest shard_request{type, key, value, next_phase};
-                ShardRequest::send_shard_request(shard_request, shard_id, SHARD_REQUEST, MPI_COMM_WORLD);
+                ShardRequest::send_shard_request(shard_request, shard_id, NODE_REQUEST, MPI_COMM_WORLD);
                 // Getting the Acknowledgment
-                ShardResponse::receive_shard_response(shard_id, SHARD_RESPONSE, MPI_COMM_WORLD);
+                ShardResponse::receive_shard_response(shard_id, NODE_RESPONSE, MPI_COMM_WORLD);
             }
 
             unlock_key(key);

@@ -16,17 +16,17 @@ enum RequestType {
 enum MessageType {
     CLIENT_REQUEST,
     CLIENT_RESPONSE,
-    SHARD_REQUEST,
-    SHARD_RESPONSE
+    NODE_REQUEST,
+    NODE_RESPONSE
 };
 
-enum TransactionState {
+enum TwoPC {
     PREPARE = 1,
     COMMIT = 2,
     ROLLBACK = 3
 };
 
-namespace mpi_utils {
+namespace mpi_manager {
     inline void send_string(const string& str, const int dest, const int tag, MPI_Comm comm) {
         const int str_size = static_cast<int>(str.size());
         // Use well-separated tags to avoid conflicts
@@ -84,10 +84,10 @@ namespace mpi_utils {
         return static_cast<RequestType>(value);
     }
 
-    inline TransactionState receive_phase_type(const int source, const int tag, MPI_Comm comm) {
+    inline TwoPC receive_phase_type(const int source, const int tag, MPI_Comm comm) {
         int value;
         MPI_Recv(&value, 1, MPI_INT, source, tag, comm, MPI_STATUS_IGNORE);
-        return static_cast<TransactionState>(value);
+        return static_cast<TwoPC>(value);
     }
 }
 
@@ -96,14 +96,14 @@ struct ShardResponse {
     string value;
 
     static void send_shard_response(const ShardResponse& response, const int dest, const int tag, MPI_Comm comm) {
-        mpi_utils::send_bool(response.success, dest, tag, comm);
-        mpi_utils::send_string(response.value, dest, tag + 1, comm);
+        mpi_manager::send_bool(response.success, dest, tag, comm);
+        mpi_manager::send_string(response.value, dest, tag + 1, comm);
     }
 
     static ShardResponse receive_shard_response(const int source, const int tag, MPI_Comm comm) {
         ShardResponse response;
-        response.success = mpi_utils::receive_bool(source, tag, comm);
-        response.value = mpi_utils::receive_string(source, tag + 1, comm);
+        response.success = mpi_manager::receive_bool(source, tag, comm);
+        response.value = mpi_manager::receive_string(source, tag + 1, comm);
         return response;
     }
 };
@@ -115,23 +115,23 @@ struct ClientRequest {
     string value;
 
     static void send_client_request(const ClientRequest& request, const int dest, const int tag, MPI_Comm comm) {
-        mpi_utils::send_int(request.client_rank, dest, tag, comm);
-        mpi_utils::send_enum(request.type, dest, tag + 1, comm);
-        mpi_utils::send_int(request.key, dest, tag + 2, comm);
-        mpi_utils::send_string(request.value, dest, tag + 3, comm);
+        mpi_manager::send_int(request.client_rank, dest, tag, comm);
+        mpi_manager::send_enum(request.type, dest, tag + 1, comm);
+        mpi_manager::send_int(request.key, dest, tag + 2, comm);
+        mpi_manager::send_string(request.value, dest, tag + 3, comm);
     }
 
     static void send_client_response(const ShardResponse& response, const int dest, const int tag, MPI_Comm comm) {
-        mpi_utils::send_bool(response.success, dest, tag, comm);
-        mpi_utils::send_string(response.value, dest, tag + 1, comm);
+        mpi_manager::send_bool(response.success, dest, tag, comm);
+        mpi_manager::send_string(response.value, dest, tag + 1, comm);
     }
 
     static ClientRequest receive_client_request(const int source, const int tag, MPI_Comm comm) {
         ClientRequest request;
-        request.client_rank = mpi_utils::receive_int(source, tag, comm);
-        request.type = mpi_utils::receive_request_type(source, tag + 1, comm);
-        request.key = mpi_utils::receive_int(source, tag + 2, comm);
-        request.value = mpi_utils::receive_string(source, tag + 3, comm);
+        request.client_rank = mpi_manager::receive_int(source, tag, comm);
+        request.type = mpi_manager::receive_request_type(source, tag + 1, comm);
+        request.key = mpi_manager::receive_int(source, tag + 2, comm);
+        request.value = mpi_manager::receive_string(source, tag + 3, comm);
         return request;
     }
 };
@@ -140,21 +140,21 @@ struct ShardRequest {
     RequestType type{};
     int key{};
     string value;
-    TransactionState state{};
+    TwoPC state{};
 
     static void send_shard_request(const ShardRequest& request, const int dest, const int tag, MPI_Comm comm) {
-        mpi_utils::send_enum(request.type, dest, tag, comm);
-        mpi_utils::send_int(request.key, dest, tag + 1, comm);
-        mpi_utils::send_string(request.value, dest, tag + 2, comm);
-        mpi_utils::send_enum(request.state, dest, tag + 3, comm);
+        mpi_manager::send_enum(request.type, dest, tag, comm);
+        mpi_manager::send_int(request.key, dest, tag + 1, comm);
+        mpi_manager::send_string(request.value, dest, tag + 2, comm);
+        mpi_manager::send_enum(request.state, dest, tag + 3, comm);
     }
 
     static ShardRequest receive_shard_request(const int source, const int tag, MPI_Comm comm) {
         ShardRequest request;
-        request.type = mpi_utils::receive_request_type(source, tag, comm);
-        request.key = mpi_utils::receive_int(source, tag + 1, comm);
-        request.value = mpi_utils::receive_string(source, tag + 2, comm);
-        request.state = mpi_utils::receive_phase_type(source, tag + 3, comm);
+        request.type = mpi_manager::receive_request_type(source, tag, comm);
+        request.key = mpi_manager::receive_int(source, tag + 1, comm);
+        request.value = mpi_manager::receive_string(source, tag + 2, comm);
+        request.state = mpi_manager::receive_phase_type(source, tag + 3, comm);
         return request;
     }
 };
@@ -179,8 +179,8 @@ inline RequestType selectType(const int &x) {
     return ret;
 }
 
-inline TransactionState selectPhase(const int &x) {
-    TransactionState ret = {};
+inline TwoPC selectPhase(const int &x) {
+    TwoPC ret = {};
     switch (x) {
         case 1:
             ret = PREPARE;

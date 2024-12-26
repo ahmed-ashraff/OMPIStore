@@ -8,13 +8,13 @@ using namespace std;
 
 mutex kv_store_mutex;
 
-void shard(const int &rank) {
-    cout << "Shard " << rank << " started...\n";
+void node(const int &rank) {
+    cout << "Node " << rank << " started...\n";
     map<int, string> kv_store;
     map<int, bool> prepared_keys;
 
     while (true) {
-        auto [Type, key, value, recPhase] = ShardRequest::receive_shard_request(0, SHARD_REQUEST, MPI_COMM_WORLD);
+        auto [Type, key, value, recPhase] = ShardRequest::receive_shard_request(0, NODE_REQUEST, MPI_COMM_WORLD);
 
         const auto phase = selectPhase(recPhase);
         const auto type = selectType(Type);
@@ -29,8 +29,7 @@ void shard(const int &rank) {
                 shard_response = {false, "Key not found"};
             }
 
-            // Send the response back to the coordinator
-            ShardResponse::send_shard_response(shard_response, 0, SHARD_RESPONSE, MPI_COMM_WORLD);
+            ShardResponse::send_shard_response(shard_response, 0, NODE_RESPONSE, MPI_COMM_WORLD);
             continue;
         }
 
@@ -39,7 +38,7 @@ void shard(const int &rank) {
             bool can_proceed = false;
 
             if (prepared_keys[key]) {
-                ShardResponse::send_shard_response({false, "Already in PREPARE state"}, 0, SHARD_RESPONSE, MPI_COMM_WORLD);
+                ShardResponse::send_shard_response({false, "Already in PREPARE state"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
                 continue;
             }
             switch (type) {
@@ -55,9 +54,9 @@ void shard(const int &rank) {
 
             if (can_proceed) {
                 prepared_keys[key] = true;
-                ShardResponse::send_shard_response({true, "PREPARE success"}, 0, SHARD_RESPONSE, MPI_COMM_WORLD);
+                ShardResponse::send_shard_response({true, "PREPARE success"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
             } else {
-                ShardResponse::send_shard_response({false, "PREPARE failed"}, 0, SHARD_RESPONSE, MPI_COMM_WORLD);
+                ShardResponse::send_shard_response({false, "PREPARE failed"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
             }
             continue;
         }
@@ -65,7 +64,7 @@ void shard(const int &rank) {
         if (phase == COMMIT) {
             lock_guard lock(kv_store_mutex);
             if (!prepared_keys[key]) {
-                ShardResponse::send_shard_response({false, "Not prepared"}, 0, SHARD_RESPONSE, MPI_COMM_WORLD);
+                ShardResponse::send_shard_response({false, "Not prepared"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
                 continue;
             }
 
@@ -88,16 +87,16 @@ void shard(const int &rank) {
             }
 
             prepared_keys.erase(key);
-            ShardResponse::send_shard_response({success, msg}, 0, SHARD_RESPONSE, MPI_COMM_WORLD);
+            ShardResponse::send_shard_response({success, msg}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
             continue;
         }
 
         if (phase == ROLLBACK) {
             prepared_keys.erase(key);
-            ShardResponse::send_shard_response({false, "Rolled back"}, 0, SHARD_RESPONSE, MPI_COMM_WORLD);
+            ShardResponse::send_shard_response({false, "Rolled back"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
             continue;
         }
 
-        ShardResponse::send_shard_response({false, "Invalid phase"}, 0, SHARD_RESPONSE, MPI_COMM_WORLD);
+        ShardResponse::send_shard_response({false, "Invalid phase"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
     }
 }

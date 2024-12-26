@@ -11,7 +11,7 @@ find_package(MPI REQUIRED)
 
 add_executable(openmp_mpi main.cpp
         common.h
-        shard.cpp
+        node.cpp
         coordinator.cpp
         client.cpp
         shard.h

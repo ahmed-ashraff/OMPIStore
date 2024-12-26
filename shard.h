@@ -5,6 +5,6 @@
 #ifndef SHARD_H
 #define SHARD_H
 
-void shard(const int &rank);
+void node(const int &rank);
 
 #endif //SHARD_H

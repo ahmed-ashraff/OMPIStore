@@ -2,12 +2,9 @@
 
 using namespace std;
 
-Logger* Logger::instance_ = nullptr;
+Logger *Logger::instance_ = nullptr;
 
-Logger::Logger()
-    : rank_(-1)
-    , console_output_(true)
-    , start_time_(std::chrono::steady_clock::now()) {}
+Logger::Logger() : console_output_(true), start_time_(chrono::steady_clock::now()) {}
 
 Logger::~Logger() {
     if (file_.is_open()) {
@@ -15,18 +12,11 @@ Logger::~Logger() {
     }
 }
 
-Logger& Logger::getInstance(const int rank) {
+Logger &Logger::getInstance() {
     if (instance_ == nullptr) {
         instance_ = new Logger();
     }
-    if (rank >= 0) {
-        instance_->setRank(rank);
-    }
     return *instance_;
-}
-
-void Logger::setRank(const int rank) {
-    rank_ = rank;
 }
 
 string Logger::getTimestamp() {
@@ -42,10 +32,10 @@ string Logger::getTimestamp() {
 
 string Logger::getLevelString(const LogType level) {
     switch (level) {
-        case DEBUG:   return "\033[36mDEBUG\033[0m";   // Cyan text for DEBUG
-        case INFO:    return "INFO";
+        case DEBUG: return "\033[36mDEBUG\033[0m"; // Cyan text for DEBUG
+        case INFO: return "INFO";
         case WARNING: return "\033[33mWARNING\033[0m"; // Yellow text for WARNING
-        case ERROR:   return "\033[31mERROR\033[0m";   // Red text for ERROR
-        default:      return "UNKNOWN";
+        case ERROR: return "\033[31mERROR\033[0m"; // Red text for ERROR
+        default: return "UNKNOWN";
     }
 }

@@ -9,8 +9,8 @@ using namespace std;
 mutex kv_store_mutex;
 
 void node(const int &rank) {
-    auto& logger = Logger::getInstance(rank);
-    logger.info("Node " + to_string(rank) + " started...");
+    auto& logger = Logger::getInstance();
+    logger.info("Node " + to_string(rank) + " started...", rank);
 
 
     map<int, string> kv_store;
@@ -28,10 +28,10 @@ void node(const int &rank) {
             lock_guard lock(kv_store_mutex);
             if (kv_store.contains(key)) {
                 shard_response = {true, kv_store[key]};
-                logger.debug("READ success for key: " + to_string(key));
+                logger.debug("READ success for key: " + to_string(key), rank);
             } else {
                 shard_response = {false, "Key not found"};
-                logger.debug("READ failed - key not found: " + to_string(key));
+                logger.debug("READ failed - key not found: " + to_string(key), rank);
             }
 
             ShardResponse::send_shard_response(shard_response, 0, NODE_RESPONSE, MPI_COMM_WORLD);
@@ -43,7 +43,7 @@ void node(const int &rank) {
             bool can_proceed = false;
 
             if (prepared_keys[key]) {
-                logger.warning("Key " + to_string(key) + " already in PREPARE state");
+                logger.warning("Key " + to_string(key) + " already in PREPARE state", rank);
                 ShardResponse::send_shard_response({false, "Already in PREPARE state"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
                 continue;
             }
@@ -60,10 +60,10 @@ void node(const int &rank) {
 
             if (can_proceed) {
                 prepared_keys[key] = true;
-                logger.info("PREPARE success for key: " + to_string(key));
+                logger.info("PREPARE success for key: " + to_string(key), rank);
                 ShardResponse::send_shard_response({true, "PREPARE success"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
             } else {
-                logger.warning("PREPARE failed for key: " + to_string(key));
+                logger.warning("PREPARE failed for key: " + to_string(key), rank);
                 ShardResponse::send_shard_response({false, "PREPARE failed"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
             }
             continue;
@@ -72,7 +72,7 @@ void node(const int &rank) {
         if (phase == COMMIT) {
             lock_guard lock(kv_store_mutex);
             if (!prepared_keys[key]) {
-                logger.error("COMMIT failed - key not prepared: " + to_string(key));
+                logger.error("COMMIT failed - key not prepared: " + to_string(key), rank);
                 ShardResponse::send_shard_response({false, "Not prepared"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
                 continue;
             }
@@ -86,17 +86,17 @@ void node(const int &rank) {
                     kv_store[key] = value;
                     msg = value;
                     logger.info("COMMIT success - " + string(type == CREATE ? "Created" : "Updated") +
-                               " key: " + to_string(key) + " with value: " + value);
+                               " key: " + to_string(key) + " with value: " + value, rank);
                     break;
                 case DELETE:
                     kv_store.erase(key);
                     msg = "Deleted";
-                    logger.info("COMMIT success - Deleted key: " + to_string(key));
+                    logger.info("COMMIT success - Deleted key: " + to_string(key), rank);
                     break;
                 default:
                     success = false;
                     msg = "Invalid operation";
-                    logger.error("COMMIT failed - Invalid operation for key: " + to_string(key));
+                    logger.error("COMMIT failed - Invalid operation for key: " + to_string(key), rank);
             }
 
             prepared_keys.erase(key);
@@ -106,12 +106,12 @@ void node(const int &rank) {
 
         if (phase == ROLLBACK) {
             prepared_keys.erase(key);
-            logger.info("ROLLBACK executed for key: " + to_string(key));
+            logger.info("ROLLBACK executed for key: " + to_string(key), rank);
             ShardResponse::send_shard_response({false, "Rolled back"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
             continue;
         }
 
-        logger.error("Invalid phase received for key: " + to_string(key));
+        logger.error("Invalid phase received for key: " + to_string(key), rank);
         ShardResponse::send_shard_response({false, "Invalid phase"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
     }
 }

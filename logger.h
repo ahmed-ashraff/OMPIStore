@@ -20,32 +20,27 @@ enum LogType {
 
 class Logger {
 public:
-    static Logger &getInstance(int rank = -1);
+    static Logger &getInstance();
 
-    void setRank(int rank);
+    template<typename T> void debug(const T &message, int rank=-1);
 
-    void setLogFile(const string &filename);
+    template<typename T> void info(const T &message, int rank=-1);
 
-    template<typename T> void debug(const T &message);
+    template<typename T> void warning(const T &message, int rank=-1);
 
-    template<typename T> void info(const T &message);
-
-    template<typename T> void warning(const T &message);
-
-    template<typename T> void error(const T &message);
+    template<typename T> void error(const T &message, int rank=-1);
 
 private:
     Logger();
 
     ~Logger();
 
-    template<typename T> void log(LogType level, const T &message);
+    template<typename T> void log(LogType level, const T &message, int rank);
 
-    string getTimestamp();
+    static string getTimestamp();
 
-    string getLevelString(LogType level);
+    static string getLevelString(LogType level);
 
-    int rank_;
     ofstream file_;
     mutex mutex_;
     bool console_output_;
@@ -53,30 +48,30 @@ private:
     chrono::steady_clock::time_point start_time_;
 };
 
-template<typename T> void Logger::debug(const T &message) {
-    log(DEBUG, message);
+template<typename T> void Logger::debug(const T &message, int rank) {
+    log(DEBUG, message, rank);
 }
 
-template<typename T> void Logger::info(const T &message) {
-    log(INFO, message);
+template<typename T> void Logger::info(const T &message, int rank) {
+    log(INFO, message, rank);
 }
 
-template<typename T> void Logger::warning(const T &message) {
-    log(WARNING, message);
+template<typename T> void Logger::warning(const T &message, int rank) {
+    log(WARNING, message, rank);
 }
 
-template<typename T> void Logger::error(const T &message) {
-    log(ERROR, message);
+template<typename T> void Logger::error(const T &message, int rank) {
+    log(ERROR, message, rank);
 }
 
-template<typename T> void Logger::log(const LogType level, const T &message) {
+template<typename T> void Logger::log(const LogType level, const T &message, const int rank) {
     lock_guard lock(mutex_);
     stringstream ss;
     ss << "[" << getTimestamp() << "] "
             << "[" << getLevelString(level) << "] ";
 
-    if (rank_ >= 0) {
-        ss << "[Node " << rank_ << "] ";
+    if (rank >= 0) {
+        ss << "[Node " << rank << "] ";
     }
 
     ss << message;

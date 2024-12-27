@@ -1,0 +1,11 @@
+ninja_dyndep_version = 1.0
+build CMakeFiles/openmp_mpi.dir/main.cpp.o: dyndep
+
+build CMakeFiles/openmp_mpi.dir/node.cpp.o: dyndep
+
+build CMakeFiles/openmp_mpi.dir/coordinator.cpp.o: dyndep
+
+build CMakeFiles/openmp_mpi.dir/client.cpp.o: dyndep
+
+build CMakeFiles/openmp_mpi.dir/logger.cpp.o: dyndep
+

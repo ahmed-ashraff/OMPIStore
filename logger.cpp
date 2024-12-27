@@ -29,16 +29,7 @@ void Logger::setRank(const int rank) {
     rank_ = rank;
 }
 
-void Logger::setLogFile(const string& filename) {
-    if (file_.is_open()) {
-        file_.close();
-    }
-    file_.open(filename, ios::app);
-}
-
 string Logger::getTimestamp() {
-
-    // Also get wall clock time for human readability
     const auto wall_time = chrono::system_clock::now();
     const auto wall_time_t = chrono::system_clock::to_time_t(wall_time);
 
@@ -51,10 +42,10 @@ string Logger::getTimestamp() {
 
 string Logger::getLevelString(const LogType level) {
     switch (level) {
-        case DEBUG:   return "DEBUG";
+        case DEBUG:   return "\033[36mDEBUG\033[0m";   // Cyan text for DEBUG
         case INFO:    return "INFO";
-        case WARNING: return "WARNING";
-        case ERROR:   return "ERROR";
+        case WARNING: return "\033[33mWARNING\033[0m"; // Yellow text for WARNING
+        case ERROR:   return "\033[31mERROR\033[0m";   // Red text for ERROR
         default:      return "UNKNOWN";
     }
 }

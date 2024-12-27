@@ -10,7 +10,6 @@ mutex kv_store_mutex;
 
 void node(const int &rank) {
     auto& logger = Logger::getInstance(rank);
-    // logger.setLogFile("node" + to_string(rank) + ".log");
     logger.info("Node " + to_string(rank) + " started...");
 
 

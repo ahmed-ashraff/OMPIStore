@@ -27,8 +27,6 @@ void unlock_key(int key) {
 void coordinator(const int &shardNodes) {
     auto& logger = Logger::getInstance(0);
 
-    // logger.setLogFile("coordinator.log");
-
     logger.info("Coordinator started...\n");
 
     while (true) {

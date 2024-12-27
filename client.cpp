@@ -8,8 +8,6 @@ using namespace std;
 void client(const int &rank) {
     auto& logger = Logger::getInstance(rank);
 
-    // logger.setLogFile("client_" + to_string(rank) + ".log");
-
     logger.info("Client " + to_string(rank) + " started...");
 
     // CREATE operation

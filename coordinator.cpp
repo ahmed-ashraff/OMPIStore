@@ -1,6 +1,9 @@
 #include "common.h"
 #include "coordinator.h"
 #include "logger.h"
+#include "mpi.h"
+#include <chrono>
+#include <fstream>
 
 using namespace std;
 
@@ -23,12 +26,50 @@ void unlock_key(int key) {
     key_locks[key] = false;
 }
 
+inline void log_performance(const string& operation, double duration, size_t memory_usage = 0) {
+    ofstream log_file("performance_log.txt", ios_base::app);
+    if (!log_file.is_open()) {
+        cerr << "Error opening log file!" << endl;
+        return;
+    }
+    log_file << "Operation: " << operation << ", Duration: " << duration << " seconds";
+    if (memory_usage > 0) {
+        log_file << ", Memory Usage: " << memory_usage << " KB";
+    }
+    log_file << "\n";
+    log_file.close();
+}
+
+inline size_t get_memory_usage() {
+#ifdef _WIN32
+    PROCESS_MEMORY_COUNTERS_EX pmc;
+    GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
+    return pmc.PrivateUsage / 1024; // Convert bytes to KB
+#else
+    ifstream status_file("/proc/self/status");
+    string line;
+    size_t memory_usage = 0;
+
+    while (getline(status_file, line)) {
+        if (line.substr(0, 6) == "VmRSS:") {
+            istringstream iss(line);
+            string key;
+            iss >> key >> memory_usage; // Read the memory usage in KB
+            break;
+        }
+    }
+
+    return memory_usage;
+#endif
+}
+
 void coordinator(const int &nodes) {
     auto& logger = Logger::getInstance();
-
     logger.info("Coordinator started...\n", 0);
 
     while (true) {
+        auto start_time = chrono::high_resolution_clock::now();
+
         auto [client_rank, Type, key, value] = ClientRequest::receive_client_request(MPI_ANY_SOURCE, CLIENT_REQUEST, MPI_COMM_WORLD);
         const auto type = selectType(Type);
 
@@ -43,7 +84,6 @@ void coordinator(const int &nodes) {
                 responses.push_back(response);
             }
 
-            // Determine the latest version of the value
             string latest_value;
             bool found = false;
 
@@ -74,16 +114,13 @@ void coordinator(const int &nodes) {
             lock_key(key);
             logger.debug("Locked key: " + to_string(key), 0);
 
-            // WRITE operations require two-phase commit
             bool prepare_success = true;
 
-            // Send PREPARE requests to all nodes
             for (int node_id = 1; node_id <= nodes; ++node_id) {
                 NodeRequest node_request{type, key, value, PREPARE};
                 NodeRequest::send_node_request(node_request, node_id, NODE_REQUEST, MPI_COMM_WORLD);
             }
 
-            // Collect PREPARE responses from all nodes
             for (int node_id = 1; node_id <= nodes; ++node_id) {
                 const auto [success, str] = NodeResponse::receive_node_response(node_id, NODE_RESPONSE, MPI_COMM_WORLD);
                 logger.info("Received from node " + to_string(node_id) + ": " + str, 0);
@@ -92,15 +129,12 @@ void coordinator(const int &nodes) {
 
             logger.info("Prepare phase success = " + string(prepare_success ? "true" : "false"), 0);
 
-            // Decide on COMMIT or ROLLBACK based on PREPARE responses
             const TwoPC next_phase = prepare_success ? COMMIT : ROLLBACK;
             logger.info("Starting " + string(next_phase == COMMIT ? "COMMIT" : "ROLLBACK") + " phase", 0);
 
-            // Send COMMIT or ROLLBACK to all nodes
             for (int node_id = 1; node_id <= nodes; ++node_id) {
                 NodeRequest node_request{type, key, value, next_phase};
                 NodeRequest::send_node_request(node_request, node_id, NODE_REQUEST, MPI_COMM_WORLD);
-                // Getting the Acknowledgment
                 NodeResponse::receive_node_response(node_id, NODE_RESPONSE, MPI_COMM_WORLD);
             }
 
@@ -114,5 +148,10 @@ void coordinator(const int &nodes) {
                 MPI_COMM_WORLD
             );
         }
+
+        auto end_time = chrono::high_resolution_clock::now();
+        chrono::duration<double> duration = end_time - start_time;
+        size_t memory_usage = get_memory_usage();
+        log_performance("Coordinator Operation", duration.count(), memory_usage);
     }
 }

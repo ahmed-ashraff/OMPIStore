@@ -1,4 +1,0 @@
-/opt/Clion/bin/cmake/linux/x64/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/opt/Clion/bin/ninja/linux/x64/ninja -G Ninja -S /home/ahmed/Distributed-Key-Value-Store -B /home/ahmed/Distributed-Key-Value-Store/cmake-build-debug
--- Configuring done (0.5s)
--- Generating done (0.0s)
--- Build files have been written to: /home/ahmed/Distributed-Key-Value-Store/cmake-build-debug

@@ -14,7 +14,7 @@ add_executable(openmp_mpi main.cpp
         node.cpp
         coordinator.cpp
         client.cpp
-        shard.h
+        node.h
         coordinator.h
         client.h
         logger.h

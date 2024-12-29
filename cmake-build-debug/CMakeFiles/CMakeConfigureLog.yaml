@@ -795,3 +795,88 @@ events:
         
       exitCode: 0
 ...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/Clion/bin/cmake/linux/x64/share/cmake-3.28/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/opt/Clion/bin/cmake/linux/x64/share/cmake-3.28/Modules/FindMPI.cmake:1322 (_MPI_try_staged_settings)"
+      - "/opt/Clion/bin/cmake/linux/x64/share/cmake-3.28/Modules/FindMPI.cmake:1645 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:10 (find_package)"
+    description: "The MPI test test_mpi for C in mode normal"
+    directories:
+      source: "/home/ahmed/Distributed-Key-Value-Store/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-0IkKiR"
+      binary: "/home/ahmed/Distributed-Key-Value-Store/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-0IkKiR"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "MPI_RESULT_C_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/home/ahmed/Distributed-Key-Value-Store/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-0IkKiR'
+        
+        Run Build Command(s): /opt/Clion/bin/ninja/linux/x64/ninja -v cmTC_a19d5
+        [1/2] /usr/bin/cc   -fdiagnostics-color=always -o CMakeFiles/cmTC_a19d5.dir/test_mpi.c.o -c /home/ahmed/Distributed-Key-Value-Store/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-0IkKiR/test_mpi.c
+        [2/2] : && /usr/bin/cc  -Wl,-rpath -Wl,/usr/lib -Wl,--enable-new-dtags CMakeFiles/cmTC_a19d5.dir/test_mpi.c.o -o cmTC_a19d5  /usr/lib/libmpi.so && :
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/Clion/bin/cmake/linux/x64/share/cmake-3.28/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/opt/Clion/bin/cmake/linux/x64/share/cmake-3.28/Modules/FindMPI.cmake:1322 (_MPI_try_staged_settings)"
+      - "/opt/Clion/bin/cmake/linux/x64/share/cmake-3.28/Modules/FindMPI.cmake:1645 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:10 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode normal"
+    directories:
+      source: "/home/ahmed/Distributed-Key-Value-Store/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-XB4KEw"
+      binary: "/home/ahmed/Distributed-Key-Value-Store/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-XB4KEw"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/home/ahmed/Distributed-Key-Value-Store/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-XB4KEw'
+        
+        Run Build Command(s): /opt/Clion/bin/ninja/linux/x64/ninja -v cmTC_fbf37
+        [1/4] /usr/bin/c++   -std=gnu++23 -fdiagnostics-color=always -E -x c++ /home/ahmed/Distributed-Key-Value-Store/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-XB4KEw/test_mpi.cpp -MT CMakeFiles/cmTC_fbf37.dir/test_mpi.cpp.o.ddi -MD -MF CMakeFiles/cmTC_fbf37.dir/test_mpi.cpp.o.ddi.d -fmodules-ts -fdeps-file=CMakeFiles/cmTC_fbf37.dir/test_mpi.cpp.o.ddi -fdeps-target=CMakeFiles/cmTC_fbf37.dir/test_mpi.cpp.o -fdeps-format=p1689r5 -o CMakeFiles/cmTC_fbf37.dir/test_mpi.cpp.o.ddi.i
+        [2/4] /opt/Clion/bin/cmake/linux/x64/bin/cmake -E cmake_ninja_dyndep --tdi=CMakeFiles/cmTC_fbf37.dir/CXXDependInfo.json --lang=CXX --modmapfmt=gcc --dd=CMakeFiles/cmTC_fbf37.dir/CXX.dd @CMakeFiles/cmTC_fbf37.dir/CXX.dd.rsp
+        [3/4] /usr/bin/c++   -std=gnu++23 -fdiagnostics-color=always -fmodules-ts -fmodule-mapper=CMakeFiles/cmTC_fbf37.dir/test_mpi.cpp.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o CMakeFiles/cmTC_fbf37.dir/test_mpi.cpp.o -c /home/ahmed/Distributed-Key-Value-Store/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-XB4KEw/test_mpi.cpp
+        [4/4] : && /usr/bin/c++  -Wl,-rpath -Wl,/usr/lib -Wl,--enable-new-dtags CMakeFiles/cmTC_fbf37.dir/test_mpi.cpp.o -o cmTC_fbf37  /usr/lib/libmpi.so && :
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/Clion/bin/cmake/linux/x64/share/cmake-3.28/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/opt/Clion/bin/cmake/linux/x64/share/cmake-3.28/Modules/FindMPI.cmake:1672 (_MPI_try_staged_settings)"
+      - "CMakeLists.txt:10 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode MPICXX"
+    directories:
+      source: "/home/ahmed/Distributed-Key-Value-Store/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-U3TlhL"
+      binary: "/home/ahmed/Distributed-Key-Value-Store/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-U3TlhL"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_MPICXX"
+      cached: true
+      stdout: |
+        Change Dir: '/home/ahmed/Distributed-Key-Value-Store/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-U3TlhL'
+        
+        Run Build Command(s): /opt/Clion/bin/ninja/linux/x64/ninja -v cmTC_07dd0
+        [1/4] /usr/bin/c++   -std=gnu++23 -fdiagnostics-color=always -E -x c++ /home/ahmed/Distributed-Key-Value-Store/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-U3TlhL/test_mpi.cpp -MT CMakeFiles/cmTC_07dd0.dir/test_mpi.cpp.o.ddi -MD -MF CMakeFiles/cmTC_07dd0.dir/test_mpi.cpp.o.ddi.d -fmodules-ts -fdeps-file=CMakeFiles/cmTC_07dd0.dir/test_mpi.cpp.o.ddi -fdeps-target=CMakeFiles/cmTC_07dd0.dir/test_mpi.cpp.o -fdeps-format=p1689r5 -o CMakeFiles/cmTC_07dd0.dir/test_mpi.cpp.o.ddi.i
+        [2/4] /opt/Clion/bin/cmake/linux/x64/bin/cmake -E cmake_ninja_dyndep --tdi=CMakeFiles/cmTC_07dd0.dir/CXXDependInfo.json --lang=CXX --modmapfmt=gcc --dd=CMakeFiles/cmTC_07dd0.dir/CXX.dd @CMakeFiles/cmTC_07dd0.dir/CXX.dd.rsp
+        [3/4] /usr/bin/c++   -std=gnu++23 -fdiagnostics-color=always -fmodules-ts -fmodule-mapper=CMakeFiles/cmTC_07dd0.dir/test_mpi.cpp.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o CMakeFiles/cmTC_07dd0.dir/test_mpi.cpp.o -c /home/ahmed/Distributed-Key-Value-Store/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-U3TlhL/test_mpi.cpp
+        [4/4] : && /usr/bin/c++  -Wl,-rpath -Wl,/usr/lib -Wl,--enable-new-dtags CMakeFiles/cmTC_07dd0.dir/test_mpi.cpp.o -o cmTC_07dd0  /usr/lib/libmpi.so && :
+        
+      exitCode: 0
+...

@@ -1,5 +1,5 @@
 #include "common.h"
-#include "shard.h"
+#include "node.h"
 #include "logger.h"
 #include <map>
 #include <string>
@@ -17,24 +17,24 @@ void node(const int &rank) {
     map<int, bool> prepared_keys;
 
     while (true) {
-        auto [Type, key, value, recPhase] = ShardRequest::receive_shard_request(0, NODE_REQUEST, MPI_COMM_WORLD);
+        auto [Type, key, value, recPhase] = NodeRequest::receive_node_request(0, NODE_REQUEST, MPI_COMM_WORLD);
 
         const auto phase = selectPhase(recPhase);
         const auto type = selectType(Type);
 
-        ShardResponse shard_response{};
+        NodeResponse node_response{};
 
         if (type == READ) {
             lock_guard lock(kv_store_mutex);
             if (kv_store.contains(key)) {
-                shard_response = {true, kv_store[key]};
+                node_response = {true, kv_store[key]};
                 logger.debug("READ success for key: " + to_string(key), rank);
             } else {
-                shard_response = {false, "Key not found"};
+                node_response = {false, "Key not found"};
                 logger.debug("READ failed - key not found: " + to_string(key), rank);
             }
 
-            ShardResponse::send_shard_response(shard_response, 0, NODE_RESPONSE, MPI_COMM_WORLD);
+            NodeResponse::send_node_response(node_response, 0, NODE_RESPONSE, MPI_COMM_WORLD);
             continue;
         }
 
@@ -44,7 +44,7 @@ void node(const int &rank) {
 
             if (prepared_keys[key]) {
                 logger.warning("Key " + to_string(key) + " already in PREPARE state", rank);
-                ShardResponse::send_shard_response({false, "Already in PREPARE state"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
+                NodeResponse::send_node_response({false, "Already in PREPARE state"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
                 continue;
             }
             switch (type) {
@@ -61,10 +61,10 @@ void node(const int &rank) {
             if (can_proceed) {
                 prepared_keys[key] = true;
                 logger.info("PREPARE success for key: " + to_string(key), rank);
-                ShardResponse::send_shard_response({true, "PREPARE success"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
+                NodeResponse::send_node_response({true, "PREPARE success"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
             } else {
                 logger.warning("PREPARE failed for key: " + to_string(key), rank);
-                ShardResponse::send_shard_response({false, "PREPARE failed"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
+                NodeResponse::send_node_response({false, "PREPARE failed"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
             }
             continue;
         }
@@ -73,7 +73,7 @@ void node(const int &rank) {
             lock_guard lock(kv_store_mutex);
             if (!prepared_keys[key]) {
                 logger.error("COMMIT failed - key not prepared: " + to_string(key), rank);
-                ShardResponse::send_shard_response({false, "Not prepared"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
+                NodeResponse::send_node_response({false, "Not prepared"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
                 continue;
             }
 
@@ -100,18 +100,18 @@ void node(const int &rank) {
             }
 
             prepared_keys.erase(key);
-            ShardResponse::send_shard_response({success, msg}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
+            NodeResponse::send_node_response({success, msg}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
             continue;
         }
 
         if (phase == ROLLBACK) {
             prepared_keys.erase(key);
             logger.info("ROLLBACK executed for key: " + to_string(key), rank);
-            ShardResponse::send_shard_response({false, "Rolled back"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
+            NodeResponse::send_node_response({false, "Rolled back"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
             continue;
         }
 
         logger.error("Invalid phase received for key: " + to_string(key), rank);
-        ShardResponse::send_shard_response({false, "Invalid phase"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
+        NodeResponse::send_node_response({false, "Invalid phase"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
     }
 }

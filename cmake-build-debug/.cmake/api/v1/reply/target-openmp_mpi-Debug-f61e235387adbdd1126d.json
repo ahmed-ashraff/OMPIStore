@@ -191,7 +191,7 @@
 		},
 		{
 			"backtrace" : 1,
-			"path" : "shard.h",
+			"path" : "node.h",
 			"sourceGroupIndex" : 1
 		},
 		{

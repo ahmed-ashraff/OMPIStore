@@ -1,7 +1,6 @@
 #include "common.h"
 #include "coordinator.h"
 #include "logger.h"
-#include <iostream>
 
 using namespace std;
 
@@ -24,7 +23,7 @@ void unlock_key(int key) {
     key_locks[key] = false;
 }
 
-void coordinator(const int &shardNodes) {
+void coordinator(const int &nodes) {
     auto& logger = Logger::getInstance();
 
     logger.info("Coordinator started...\n", 0);
@@ -34,13 +33,13 @@ void coordinator(const int &shardNodes) {
         const auto type = selectType(Type);
 
         if (type == READ) {
-            vector<ShardResponse> responses;
+            vector<NodeResponse> responses;
 
-            for (int shard_id = 1; shard_id <= shardNodes; ++shard_id) {
-                ShardRequest read_request{READ, key, ""};
-                ShardRequest::send_shard_request(read_request, shard_id, NODE_REQUEST, MPI_COMM_WORLD);
+            for (int node_id = 1; node_id <= nodes; ++node_id) {
+                NodeRequest read_request{READ, key, ""};
+                NodeRequest::send_node_request(read_request, node_id, NODE_REQUEST, MPI_COMM_WORLD);
 
-                auto response = ShardResponse::receive_shard_response(shard_id, NODE_RESPONSE, MPI_COMM_WORLD);
+                auto response = NodeResponse::receive_node_response(node_id, NODE_RESPONSE, MPI_COMM_WORLD);
                 responses.push_back(response);
             }
 
@@ -78,16 +77,16 @@ void coordinator(const int &shardNodes) {
             // WRITE operations require two-phase commit
             bool prepare_success = true;
 
-            // Send PREPARE requests to all shards
-            for (int shard_id = 1; shard_id <= shardNodes; ++shard_id) {
-                ShardRequest shard_request{type, key, value, PREPARE};
-                ShardRequest::send_shard_request(shard_request, shard_id, NODE_REQUEST, MPI_COMM_WORLD);
+            // Send PREPARE requests to all nodes
+            for (int node_id = 1; node_id <= nodes; ++node_id) {
+                NodeRequest node_request{type, key, value, PREPARE};
+                NodeRequest::send_node_request(node_request, node_id, NODE_REQUEST, MPI_COMM_WORLD);
             }
 
-            // Collect PREPARE responses from all shards
-            for (int shard_id = 1; shard_id <= shardNodes; ++shard_id) {
-                const auto [success, str] = ShardResponse::receive_shard_response(shard_id, NODE_RESPONSE, MPI_COMM_WORLD);
-                logger.info("Received from shard " + to_string(shard_id) + ": " + str, 0);
+            // Collect PREPARE responses from all nodes
+            for (int node_id = 1; node_id <= nodes; ++node_id) {
+                const auto [success, str] = NodeResponse::receive_node_response(node_id, NODE_RESPONSE, MPI_COMM_WORLD);
+                logger.info("Received from node " + to_string(node_id) + ": " + str, 0);
                 prepare_success = prepare_success && success;
             }
 
@@ -97,12 +96,12 @@ void coordinator(const int &shardNodes) {
             const TwoPC next_phase = prepare_success ? COMMIT : ROLLBACK;
             logger.info("Starting " + string(next_phase == COMMIT ? "COMMIT" : "ROLLBACK") + " phase", 0);
 
-            // Send COMMIT or ROLLBACK to all shards
-            for (int shard_id = 1; shard_id <= shardNodes; ++shard_id) {
-                ShardRequest shard_request{type, key, value, next_phase};
-                ShardRequest::send_shard_request(shard_request, shard_id, NODE_REQUEST, MPI_COMM_WORLD);
+            // Send COMMIT or ROLLBACK to all nodes
+            for (int node_id = 1; node_id <= nodes; ++node_id) {
+                NodeRequest node_request{type, key, value, next_phase};
+                NodeRequest::send_node_request(node_request, node_id, NODE_REQUEST, MPI_COMM_WORLD);
                 // Getting the Acknowledgment
-                ShardResponse::receive_shard_response(shard_id, NODE_RESPONSE, MPI_COMM_WORLD);
+                NodeResponse::receive_node_response(node_id, NODE_RESPONSE, MPI_COMM_WORLD);
             }
 
             unlock_key(key);
@@ -117,4 +116,3 @@ void coordinator(const int &shardNodes) {
         }
     }
 }
-

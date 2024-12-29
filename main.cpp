@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 #include "mpi.h"
 #include "coordinator.h"
-#include "shard.h"
+#include "node.h"
 #include "client.h"
 
 using namespace std;

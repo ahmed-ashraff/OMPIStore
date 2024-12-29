@@ -91,17 +91,17 @@ namespace mpi_manager {
     }
 }
 
-struct ShardResponse {
+struct NodeResponse {
     bool success{};
     string value;
 
-    static void send_shard_response(const ShardResponse& response, const int dest, const int tag, MPI_Comm comm) {
+    static void send_node_response(const NodeResponse& response, const int dest, const int tag, MPI_Comm comm) {
         mpi_manager::send_bool(response.success, dest, tag, comm);
         mpi_manager::send_string(response.value, dest, tag + 1, comm);
     }
 
-    static ShardResponse receive_shard_response(const int source, const int tag, MPI_Comm comm) {
-        ShardResponse response;
+    static NodeResponse receive_node_response(const int source, const int tag, MPI_Comm comm) {
+        NodeResponse response;
         response.success = mpi_manager::receive_bool(source, tag, comm);
         response.value = mpi_manager::receive_string(source, tag + 1, comm);
         return response;
@@ -121,7 +121,7 @@ struct ClientRequest {
         mpi_manager::send_string(request.value, dest, tag + 3, comm);
     }
 
-    static void send_client_response(const ShardResponse& response, const int dest, const int tag, MPI_Comm comm) {
+    static void send_client_response(const NodeResponse& response, const int dest, const int tag, MPI_Comm comm) {
         mpi_manager::send_bool(response.success, dest, tag, comm);
         mpi_manager::send_string(response.value, dest, tag + 1, comm);
     }
@@ -136,21 +136,21 @@ struct ClientRequest {
     }
 };
 
-struct ShardRequest {
+struct NodeRequest {
     RequestType type{};
     int key{};
     string value;
     TwoPC state{};
 
-    static void send_shard_request(const ShardRequest& request, const int dest, const int tag, MPI_Comm comm) {
+    static void send_node_request(const NodeRequest& request, const int dest, const int tag, MPI_Comm comm) {
         mpi_manager::send_enum(request.type, dest, tag, comm);
         mpi_manager::send_int(request.key, dest, tag + 1, comm);
         mpi_manager::send_string(request.value, dest, tag + 2, comm);
         mpi_manager::send_enum(request.state, dest, tag + 3, comm);
     }
 
-    static ShardRequest receive_shard_request(const int source, const int tag, MPI_Comm comm) {
-        ShardRequest request;
+    static NodeRequest receive_node_request(const int source, const int tag, MPI_Comm comm) {
+        NodeRequest request;
         request.type = mpi_manager::receive_request_type(source, tag, comm);
         request.key = mpi_manager::receive_int(source, tag + 1, comm);
         request.value = mpi_manager::receive_string(source, tag + 2, comm);

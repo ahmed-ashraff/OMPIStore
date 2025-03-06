@@ -1,27 +1,77 @@
+# Compiler and flags
 CC = mpicxx
 CFLAGS = -Wall -std=c++20
 
+# Directories
+SRC_DIR = src
+COMMON_DIR = $(SRC_DIR)/common
+COORDINATOR_DIR = $(SRC_DIR)/coordinator
+NODE_DIR = $(SRC_DIR)/node
+CLIENT_DIR = $(SRC_DIR)/client
+
+# Source files
+MAIN_SRC = $(SRC_DIR)/main.cpp
+LOGGER_SRC = $(COMMON_DIR)/logger.cpp
+COORDINATOR_SRC = $(COORDINATOR_DIR)/coordinator.cpp
+NODE_SRC = $(NODE_DIR)/node.cpp
+CLIENT_SRC = $(CLIENT_DIR)/client.cpp
+CLIENT_REQUEST_UTILS_SRC = $(COMMON_DIR)/client_request_utils.cpp
+CLIENT_RESPONSE_UTILS_SRC = $(COMMON_DIR)/client_response_utils.cpp
+NODE_RESPONSE_UTILS_SRC = $(COMMON_DIR)/node_response_utils.cpp
+NODE_REQUEST_UTILS_SRC = $(COMMON_DIR)/node_request_utils.cpp
+MPI_MANAGER_SRC = $(COMMON_DIR)/mpi_manager.cpp
+
+# Object files
+MAIN_OBJ = main.o
+LOGGER_OBJ = logger.o
+COORDINATOR_OBJ = coordinator.o
+NODE_OBJ = node.o
+CLIENT_OBJ = client.o
+CLIENT_REQUEST_UTILS_OBJ = client_request_utils.o
+CLIENT_RESPONSE_UTILS_OBJ = client_response_utils.o
+NODE_RESPONSE_UTILS_OBJ = node_response_utils.o
+NODE_REQUEST_UTILS_OBJ = node_request_utils.o
+MPI_MANAGER_OBJ = mpi_manager.o
+
+# Targets
 all: build run
 
 build: main
 
-main: main.o coordinator.o node.o client.o logger.o
-	$(CC) $(CFLAGS) -o main main.o coordinator.o node.o client.o logger.o
+main: $(MAIN_OBJ) $(COORDINATOR_OBJ) $(NODE_OBJ) $(CLIENT_OBJ) $(LOGGER_OBJ) \
+      $(CLIENT_REQUEST_UTILS_OBJ) $(CLIENT_RESPONSE_UTILS_OBJ) $(NODE_RESPONSE_UTILS_OBJ) $(NODE_REQUEST_UTILS_OBJ) $(MPI_MANAGER_OBJ)
+	$(CC) $(CFLAGS) -o main $(MAIN_OBJ) $(COORDINATOR_OBJ) $(NODE_OBJ) $(CLIENT_OBJ) \
+	      $(LOGGER_OBJ) $(CLIENT_REQUEST_UTILS_OBJ) $(CLIENT_RESPONSE_UTILS_OBJ) $(NODE_RESPONSE_UTILS_OBJ) $(NODE_REQUEST_UTILS_OBJ) $(MPI_MANAGER_OBJ)
 
-main.o: main.cpp
-	$(CC) $(CFLAGS) -c main.cpp
+$(MAIN_OBJ): $(MAIN_SRC)
+	$(CC) $(CFLAGS) -c $(MAIN_SRC) -o $(MAIN_OBJ)
 
-logger.o: logger.cpp
-	$(CC) $(CFLAGS) -c logger.cpp
+$(LOGGER_OBJ): $(LOGGER_SRC)
+	$(CC) $(CFLAGS) -c $(LOGGER_SRC) -o $(LOGGER_OBJ)
 
-coordinator.o: coordinator.cpp
-	$(CC) $(CFLAGS) -c coordinator.cpp
+$(COORDINATOR_OBJ): $(COORDINATOR_SRC)
+	$(CC) $(CFLAGS) -c $(COORDINATOR_SRC) -o $(COORDINATOR_OBJ)
 
-node.o: node.cpp
-	$(CC) $(CFLAGS) -c node.cpp
+$(NODE_OBJ): $(NODE_SRC)
+	$(CC) $(CFLAGS) -c $(NODE_SRC) -o $(NODE_OBJ)
 
-client.o: client.cpp
-	$(CC) $(CFLAGS) -c client.cpp
+$(CLIENT_OBJ): $(CLIENT_SRC)
+	$(CC) $(CFLAGS) -c $(CLIENT_SRC) -o $(CLIENT_OBJ)
+
+$(CLIENT_REQUEST_UTILS_OBJ): $(CLIENT_REQUEST_UTILS_SRC)
+	$(CC) $(CFLAGS) -c $(CLIENT_REQUEST_UTILS_SRC) -o $(CLIENT_REQUEST_UTILS_OBJ)
+
+$(CLIENT_RESPONSE_UTILS_OBJ): $(CLIENT_RESPONSE_UTILS_SRC)
+	$(CC) $(CFLAGS) -c $(CLIENT_RESPONSE_UTILS_SRC) -o $(CLIENT_RESPONSE_UTILS_OBJ)
+
+$(NODE_RESPONSE_UTILS_OBJ): $(NODE_RESPONSE_UTILS_SRC)
+	$(CC) $(CFLAGS) -c $(NODE_RESPONSE_UTILS_SRC) -o $(NODE_RESPONSE_UTILS_OBJ)
+
+$(NODE_REQUEST_UTILS_OBJ): $(NODE_REQUEST_UTILS_SRC)
+	$(CC) $(CFLAGS) -c $(NODE_REQUEST_UTILS_SRC) -o $(NODE_REQUEST_UTILS_OBJ)
+
+$(MPI_MANAGER_OBJ): $(MPI_MANAGER_SRC)
+	$(CC) $(CFLAGS) -c $(MPI_MANAGER_SRC) -o $(MPI_MANAGER_OBJ)
 
 run: main
 	mpirun -np 4 ./main

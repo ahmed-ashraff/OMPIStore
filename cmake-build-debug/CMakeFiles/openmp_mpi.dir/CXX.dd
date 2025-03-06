@@ -1,11 +1,21 @@
 ninja_dyndep_version = 1.0
-build CMakeFiles/openmp_mpi.dir/main.cpp.o: dyndep
+build CMakeFiles/openmp_mpi.dir/src/main.cpp.o: dyndep
 
-build CMakeFiles/openmp_mpi.dir/node.cpp.o: dyndep
+build CMakeFiles/openmp_mpi.dir/src/node/node.cpp.o: dyndep
 
-build CMakeFiles/openmp_mpi.dir/coordinator.cpp.o: dyndep
+build CMakeFiles/openmp_mpi.dir/src/coordinator/coordinator.cpp.o: dyndep
 
-build CMakeFiles/openmp_mpi.dir/client.cpp.o: dyndep
+build CMakeFiles/openmp_mpi.dir/src/client/client.cpp.o: dyndep
 
-build CMakeFiles/openmp_mpi.dir/logger.cpp.o: dyndep
+build CMakeFiles/openmp_mpi.dir/src/common/logger.cpp.o: dyndep
+
+build CMakeFiles/openmp_mpi.dir/src/common/mpi_manager.cpp.o: dyndep
+
+build CMakeFiles/openmp_mpi.dir/src/common/client_request_utils.cpp.o: dyndep
+
+build CMakeFiles/openmp_mpi.dir/src/common/node_response_utils.cpp.o: dyndep
+
+build CMakeFiles/openmp_mpi.dir/src/common/node_request_utils.cpp.o: dyndep
+
+build CMakeFiles/openmp_mpi.dir/src/common/client_response_utils.cpp.o: dyndep
 

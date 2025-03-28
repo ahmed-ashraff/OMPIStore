@@ -5,7 +5,6 @@
 #include "../../include/common/node_response_utils.h"
 #include <map>
 #include <string>
-#include <chrono>
 #include <fstream>
 #include <omp.h>
 
@@ -13,42 +12,6 @@ using namespace std;
 
 mutex kv_store_mutex;
 
-inline void log_performance(const string &operation, double duration, size_t memory_usage = 0) {
-    ofstream log_file("performance_log.txt", ios_base::app);
-    if (!log_file.is_open()) {
-        cerr << "Error opening log file!" << endl;
-        return;
-    }
-    log_file << "Operation: " << operation << ", Duration: " << duration << " seconds";
-    if (memory_usage > 0) {
-        log_file << ", Memory Usage: " << memory_usage << " KB";
-    }
-    log_file << "\n";
-    log_file.close();
-}
-
-inline size_t get_memory_usage() {
-#ifdef _WIN32
-    PROCESS_MEMORY_COUNTERS_EX pmc;
-    GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
-    return pmc.PrivateUsage / 1024; // Convert bytes to KB
-#else
-    ifstream status_file("/proc/self/status");
-    string line;
-    size_t memory_usage = 0;
-
-    while (getline(status_file, line)) {
-        if (line.substr(0, 6) == "VmRSS:") {
-            istringstream iss(line);
-            string key;
-            iss >> key >> memory_usage; // Read the memory usage in KB
-            break;
-        }
-    }
-
-    return memory_usage;
-#endif
-}
 
 void node(const int &rank) {
     auto &logger = Logger::getInstance();
@@ -58,8 +21,6 @@ void node(const int &rank) {
     map<int, bool> prepared_keys;
 
     while (true) {
-        auto start_time = chrono::high_resolution_clock::now();
-
         auto [type, key, value, recPhase] = receive_node_request(0, NODE_REQUEST, MPI_COMM_WORLD);
 
         NodeResponse node_response{};
@@ -147,10 +108,5 @@ void node(const int &rank) {
             logger.info("ROLLBACK executed for key: " + to_string(key), rank);
             send_node_response({false, "Rolled back"}, 0, NODE_RESPONSE, MPI_COMM_WORLD);
         }
-
-        auto end_time = chrono::high_resolution_clock::now();
-        chrono::duration<double> duration = end_time - start_time;
-        const size_t memory_usage = get_memory_usage();
-        log_performance("Node " + to_string(rank) + " Operation ", duration.count(), memory_usage);
     }
 }

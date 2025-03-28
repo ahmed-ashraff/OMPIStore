@@ -1,7 +1,7 @@
-# Distributed Key-Value Store
+# OMPIStore
 
 ## Overview
-This project is a **distributed and parallel key-value store** implemented using **MPI (Message Passing Interface)** and **OpenMP**. It allows multiple clients to interact with a distributed system consisting of a coordinator and multiple nodes. The system supports basic CRUD operations (Create, Read, Update, Delete) and uses a **Two-Phase Commit (2PC)** protocol to ensure consistency across nodes.
+OMPIStore is a **distributed and parallel key-value store** implemented using **MPI (Message Passing Interface)** and **OpenMP**. It allows multiple clients to interact with a distributed system consisting of a coordinator and multiple nodes. The system supports basic CRUD operations (Create, Read, Update, Delete) and uses a **Two-Phase Commit (2PC)** protocol to ensure consistency across nodes.
 
 The key-value store is designed to be:
 - **Distributed**: Data is stored across multiple nodes.
@@ -64,8 +64,8 @@ The system consists of the following components:
 ## Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/ahmed-ashraff/Distributed-Key-Value-Store.git
-   cd Distributed-Key-Value-Store
+   git clone https://github.com/ahmed-ashraff/OMPIStore.git
+   cd OMPIStore
    ```
 2. Build the project 
    ```bash

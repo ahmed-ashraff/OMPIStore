@@ -74,7 +74,7 @@ $(MPI_MANAGER_OBJ): $(MPI_MANAGER_SRC)
 	$(CC) $(CFLAGS) -c $(MPI_MANAGER_SRC) -o $(MPI_MANAGER_OBJ)
 
 run: main
-	mpirun -np 4 ./main
+	mpirun -np 4 --stdin 3 ./main
 
 clean:
 	rm -f *.o main
